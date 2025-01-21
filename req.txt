@@ -1,0 +1,16 @@
+fastapi[standard]
+uvicorn
+pydantic
+SQLAlchemy
+psycopg2-binary
+streamlit
+schedule
+apscheduler
+requests
+sendgrid
+pandas
+matplotlib
+seaborn
+jwt
+passlib
+bcrypt
