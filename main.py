@@ -7,6 +7,7 @@ from .db.database import create_table, SessionLocal
 from fastapi.middleware.cors import CORSMiddleware
 from apscheduler.schedulers.background import BackgroundScheduler
 import uvicorn
+import pusher
 
 
 app = FastAPI()
@@ -26,9 +27,11 @@ app.add_middleware(
 async def start_up_event():
     create_table()
     
-    #scheduler = BackgroundScheduler()
-    #scheduler.add_job(controllers.notify_due_tasks, args=[SessionLocal()], trigger="interval", seconds=10)
-    #scheduler.start()
+    # scheduler = BackgroundScheduler()
+    # scheduler.add_job(notify.notify_due_tasks, args=[SessionLocal()], trigger="interval", seconds=5)
+    # scheduler.start()
+    
+
 
 
 
@@ -37,8 +40,11 @@ app.include_router(auth_routes.router, tags=["User Authentication"])
 app.include_router(task_routes.router, prefix="/api/v1", tags=["Tasks CRUD"])
 app.include_router(analysis_routes.analysis_routes, prefix="/api/v1", tags=["Analysis"])
 
-# if __name__ == "__main__":
+# if __name__ == "__main__": 
 #     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+
+
 
 
 

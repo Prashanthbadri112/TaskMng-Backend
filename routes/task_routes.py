@@ -2,15 +2,18 @@ from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
-
-from ..services import notify
-
-from ..db import models
-from ..services import authentication
-from .. import schemas
-from ..db.database import get_db
 import os
 import ssl
+import asyncio
+
+from ..services import notify, authentication, push_notify
+from ..db import models
+from .. import schemas
+from ..db.database import get_db
+
+
+def push(channel,message):
+    push_notify.pusher_client.trigger(channel, 'my-event', {'message': message})
 
 
 # Initialize router
@@ -46,6 +49,8 @@ def create_task(task: schemas.TaskCreate,current_user: models.User = Depends(aut
         db.add(db_task)
         db.commit()
         db.refresh(db_task)
+        message = f'{current_user.username} has successfully created a task with id:{db_task.task_id}'
+        push(current_user.username,message)
         return db_task
     except HTTPException as http_exc:
         raise http_exc
@@ -84,6 +89,8 @@ def update_task(task_id: int,task_update: schemas.TaskUpdate,current_user: model
         #         task.status = 'overdue'
     db.commit()
     db.refresh(task)
+    message = f'{current_user.username} has successfully updated a task with id:{task_id}'
+    push(current_user.username,message)
     return task
 
 
@@ -95,6 +102,8 @@ def delete_task(task_id: int,current_user: models.User = Depends(authentication.
         raise HTTPException(status_code=404, detail="Task not found")
     db.delete(db_task)
     db.commit()
+    message = f'{current_user.username} has successfully deleted a task with id:{task_id}'
+    push(current_user.username,message)
     return "Deleted the task Successfully"
 
 @router.get("/tasks/mail/{task_id}",response_model=str)
